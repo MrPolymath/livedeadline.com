@@ -3,33 +3,34 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Datepicker from "react-tailwindcss-datepicker";
 
-export default function Home() {
+export default function Countdown() {
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [isValidParams, setIsValidParams] = useState(false);
+  const [countdownEndTime, setCountdownEndTime] = useState<number | null>(null);
+  const [countdownText, setCountdownText] = useState<string>("");
+  const [percentageString, setPercentageString] = useState("0000000");
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
 
-  const d = searchParams.get("d"); // Get the 'd' query parameter
-  // validate that d is in base36, decode and check that it's a valid date
-  // if not, render an error message
-  const isValidDate = d && !isNaN(parseInt(d, 36));
-  const t = searchParams.get("t"); // Get the 't' query parameter
+  useEffect(() => {
+    const d = searchParams.get("d");
+    const t = searchParams.get("t");
 
-  // If the query parameters are missing, render a different UI
-  if (!d || !t) {
-    return <AlternateUI />;
-  }
-  if (d && !isValidDate) {
-    return (
-      <AlternateUI errorMessage="Invalid URL parameters. Please create a new url" />
-    );
-  }
+    if (d && t) {
+      const isValidDate = !isNaN(parseInt(d, 36));
+      const decodedTime = isValidDate ? parseInt(d, 36) : null;
 
-  // Decode the 'd' parameter from base36
-  const decodedTime = parseInt(d, 36);
-
-  // Use the decoded time and query text as the initial states
-  const [countdownEndTime] = useState(decodedTime);
-  const [countdownText] = useState(decodeURIComponent(t));
+      if (decodedTime) {
+        setCountdownEndTime(decodedTime);
+        setCountdownText(decodeURIComponent(t));
+        setIsValidParams(true);
+      }
+    }
+    setLoading(false);
+  }, [searchParams]);
 
   const calculatePercentage = () => {
+    if (!countdownEndTime) return "0000000";
     const now = new Date().getTime();
     const remainingTime = countdownEndTime - now;
     const percentageOfDay = remainingTime / 86400000; // 86,400,000 ms = 1 day
@@ -42,33 +43,37 @@ export default function Home() {
     return percentageRounded.padStart(7, "0");
   };
 
-  const [percentageString, setPercentageString] = useState(
-    calculatePercentage()
-  );
-
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (countdownEndTime) {
       setPercentageString(calculatePercentage());
-    }, 100);
 
-    return () => clearInterval(interval);
+      const interval = setInterval(() => {
+        setPercentageString(calculatePercentage());
+      }, 100);
+
+      const calculateDaysLeft = () => {
+        const daysLeftCalculated = Math.floor(
+          (countdownEndTime - Date.now()) / 1000 / 60 / 60 / 24
+        );
+        setDaysLeft(daysLeftCalculated);
+      };
+
+      calculateDaysLeft();
+
+      return () => clearInterval(interval);
+    }
   }, [countdownEndTime]);
 
-  const [daysLeft, setDaysLeft] = useState<number | null>(null);
+  if (loading) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center p-24 text-slate-800 bg-slate-100">
+        {/* <div className="text-3xl">Loading...</div> */}
+      </main>
+    );
+  }
 
-  useEffect(() => {
-    const calculateDaysLeft = () => {
-      const daysLeftCalculated = Math.floor(
-        (countdownEndTime - Date.now()) / 1000 / 60 / 60 / 24
-      );
-      setDaysLeft(daysLeftCalculated);
-    };
-
-    calculateDaysLeft();
-  }, [countdownEndTime]);
-
-  if (daysLeft === null) {
-    return null;
+  if (!isValidParams || daysLeft === null) {
+    return <Form />;
   }
 
   return (
@@ -90,7 +95,7 @@ export default function Home() {
   );
 }
 
-function AlternateUI({ errorMessage }: { errorMessage?: string }) {
+function Form() {
   const [dateValue, setDateValue] = useState<{
     startDate: string | null;
     endDate: string | null;
@@ -123,26 +128,20 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
       return "";
     }
 
-    // Parse the selected date string into a Date object
     const selectedDate = new Date(dateValue.startDate);
     if (isNaN(selectedDate.getTime())) {
       return "Invalid date selected.";
     }
 
-    // Combine date and time
     const [hours, minutes] = time.split(":").map(Number);
     selectedDate.setHours(hours);
     selectedDate.setMinutes(minutes);
     selectedDate.setSeconds(0);
     selectedDate.setMilliseconds(0);
 
-    // Encode date to base36
     const base36Date = selectedDate.getTime().toString(36);
-
-    // URL encode the description
     const encodedDescription = encodeURIComponent(description || "");
 
-    // Generate the URL
     return `${window.location.origin}/?d=${base36Date}&t=${encodedDescription}`;
   };
 
@@ -151,17 +150,12 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
   const handleCopyUrl = () => {
     if (urlPreview) {
       navigator.clipboard.writeText(urlPreview);
-      // .then(() => alert("URL copied to clipboard!"))
-      // .catch(() => alert("Failed to copy URL."));
     }
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 text-slate-800 bg-slate-100">
       <h1 className="text-4xl font-bold">Create your own shareable URL</h1>
-      {errorMessage && (
-        <p className="text-xl mt-4 text-red-500">{errorMessage}</p>
-      )}
       <p className="text-xl mt-4">1. Select a date:</p>
       <div className="w-full md:w-96 mt-2">
         <Datepicker
@@ -188,7 +182,6 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
         className="border border-gray-300 rounded-md p-2 mt-2 md:w-96 cursor-copy"
       />
 
-      {/* URL Preview */}
       {urlPreview && (
         <div className="mt-8">
           <p className="text-m">Click to copy:</p>
@@ -203,7 +196,6 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
           </div>
         </div>
       )}
-      {/* fixed footer displaying my linkedin. Open in new tab */}
       <div className="fixed bottom-0 left-0 right-0 p-4 text-center text-gray-500">
         Created by{" "}
         <a
