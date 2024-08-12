@@ -14,10 +14,12 @@ export default function Home() {
 
   // If the query parameters are missing, render a different UI
   if (!d || !t) {
-    if (!isValidDate) {
-      return <AlternateUI errorMessage="Invalid date string" />;
-    }
     return <AlternateUI />;
+  }
+  if (d && !isValidDate) {
+    return (
+      <AlternateUI errorMessage="Invalid URL parameters. Please create a new url" />
+    );
   }
 
   // Decode the 'd' parameter from base36
@@ -89,46 +91,104 @@ export default function Home() {
 }
 
 function AlternateUI({ errorMessage }: { errorMessage?: string }) {
-  const [value, setValue] = useState({
-    startDate: new Date(),
+  const [dateValue, setDateValue] = useState<{
+    startDate: string | null;
+    endDate: string | null;
+  }>({
+    startDate: null,
     endDate: null,
   });
+  const [time, setTime] = useState<string>("00:00");
+  const [description, setDescription] = useState<string>("");
 
-  const handleValueChange = (newValue) => {
-    console.log("newValue:", newValue);
-    setValue(newValue);
+  const handleDateChange = (newValue: {
+    startDate: string | null;
+    endDate: string | null;
+  }) => {
+    setDateValue(newValue);
+  };
+
+  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTime(event.target.value);
+  };
+
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDescription(event.target.value);
+  };
+
+  const handleCreateUrl = () => {
+    if (!dateValue.startDate) {
+      alert("Please select a valid date.");
+      return;
+    }
+
+    // Parse the selected date string into a Date object
+    const selectedDate = new Date(dateValue.startDate);
+    if (isNaN(selectedDate.getTime())) {
+      alert("Invalid date selected.");
+      return;
+    }
+
+    // Combine date and time
+    const [hours, minutes] = time.split(":").map(Number);
+    selectedDate.setHours(hours);
+    selectedDate.setMinutes(minutes);
+    selectedDate.setSeconds(0);
+    selectedDate.setMilliseconds(0);
+
+    // Encode date to base36
+    const base36Date = selectedDate.getTime().toString(36);
+
+    // URL encode the description
+    const encodedDescription = encodeURIComponent(description || "");
+
+    // Generate the URL
+    const url = `${window.location.origin}/?d=${base36Date}&t=${encodedDescription}`;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(url)
+      .then(() => alert("URL copied to clipboard!"))
+      .catch(() => alert("Failed to copy URL."));
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center md:p-24 p-8 text-slate-800 bg-slate-100">
-      <h1 className="text-4xl font-bold mb-12 text-center">
-        Create your own shareable url
-      </h1>
-      {/* <p className="text-xl mt-4">
-        {errorMessage ??
-          "Please provide both `d` and `t` query parameters in the URL."}
-      </p> */}
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 text-slate-800 bg-slate-100">
+      <h1 className="text-4xl font-bold">Create your own shareable URL</h1>
+      {errorMessage && (
+        <p className="text-xl mt-4 text-red-500">{errorMessage}</p>
+      )}
       <p className="text-xl mt-4">1. Select a date:</p>
       <div className="max-w-64 mt-2">
         <Datepicker
           asSingle={true}
-          value={value}
-          onChange={handleValueChange}
+          useRange={false}
+          value={dateValue}
+          onChange={handleDateChange}
         />
       </div>
-      <p className="text-xl mt-8">2. Select a specific time:</p>
-      <p className="text-md">(optional, if not, defaults to midnight):</p>
+      <p className="text-xl mt-4">2. Select a specific time:</p>
+      <p className="text-md">(optional, defaults to midnight if not set):</p>
       <input
         type="time"
+        value={time}
+        onChange={handleTimeChange}
         className="border border-gray-300 rounded-md p-2 mt-2"
       />
-      <p className="text-xl mt-8">3. Add a description:</p>
+      <p className="text-xl mt-4">3. Add a description:</p>
       <input
         type="text"
+        value={description}
+        onChange={handleDescriptionChange}
         placeholder="e.g. My birthday"
         className="border border-gray-300 rounded-md p-2 mt-2"
       />
-      <button className="bg-blue-500 text-white rounded-md p-2 mt-4">
+      <button
+        onClick={handleCreateUrl}
+        className="bg-blue-500 text-white rounded-md p-2 mt-4"
+      >
         Create and copy URL
       </button>
     </main>
