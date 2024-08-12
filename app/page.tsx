@@ -118,17 +118,15 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
     setDescription(event.target.value);
   };
 
-  const handleCreateUrl = () => {
+  const generateUrl = () => {
     if (!dateValue.startDate) {
-      alert("Please select a valid date.");
-      return;
+      return "";
     }
 
     // Parse the selected date string into a Date object
     const selectedDate = new Date(dateValue.startDate);
     if (isNaN(selectedDate.getTime())) {
-      alert("Invalid date selected.");
-      return;
+      return "Invalid date selected.";
     }
 
     // Combine date and time
@@ -145,13 +143,17 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
     const encodedDescription = encodeURIComponent(description || "");
 
     // Generate the URL
-    const url = `${window.location.origin}/?d=${base36Date}&t=${encodedDescription}`;
+    return `${window.location.origin}/?d=${base36Date}&t=${encodedDescription}`;
+  };
 
-    // Copy to clipboard
-    navigator.clipboard
-      .writeText(url)
-      .then(() => alert("URL copied to clipboard!"))
-      .catch(() => alert("Failed to copy URL."));
+  const urlPreview = generateUrl();
+
+  const handleCopyUrl = () => {
+    if (urlPreview) {
+      navigator.clipboard.writeText(urlPreview);
+      // .then(() => alert("URL copied to clipboard!"))
+      // .catch(() => alert("Failed to copy URL."));
+    }
   };
 
   return (
@@ -161,7 +163,7 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
         <p className="text-xl mt-4 text-red-500">{errorMessage}</p>
       )}
       <p className="text-xl mt-4">1. Select a date:</p>
-      <div className="max-w-64 mt-2">
+      <div className="w-full md:w-96 mt-2">
         <Datepicker
           asSingle={true}
           useRange={false}
@@ -175,7 +177,7 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
         type="time"
         value={time}
         onChange={handleTimeChange}
-        className="border border-gray-300 rounded-md p-2 mt-2"
+        className="border border-gray-300 rounded-md p-2 mt-2 w-full md:w-96"
       />
       <p className="text-xl mt-4">3. Add a description:</p>
       <input
@@ -183,14 +185,35 @@ function AlternateUI({ errorMessage }: { errorMessage?: string }) {
         value={description}
         onChange={handleDescriptionChange}
         placeholder="e.g. My birthday"
-        className="border border-gray-300 rounded-md p-2 mt-2"
+        className="border border-gray-300 rounded-md p-2 mt-2 md:w-96 cursor-copy"
       />
-      <button
-        onClick={handleCreateUrl}
-        className="bg-blue-500 text-white rounded-md p-2 mt-4"
-      >
-        Create and copy URL
-      </button>
+
+      {/* URL Preview */}
+      {urlPreview && (
+        <div className="mt-8">
+          <p className="text-m">Click to copy:</p>
+          <div className="flex items-center mt-2">
+            <input
+              onClick={handleCopyUrl}
+              type="text"
+              value={urlPreview}
+              readOnly
+              className="border border-gray-300 rounded-md p-2 w-full md:w-96 cursor-copy"
+            />
+          </div>
+        </div>
+      )}
+      {/* fixed footer displaying my linkedin. Open in new tab */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 text-center text-gray-500">
+        Created by{" "}
+        <a
+          href="https://www.linkedin.com/in/danielcarmonaserrat/"
+          className="underline"
+          target="_blank"
+        >
+          Daniel Carmona Serrat
+        </a>
+      </div>
     </main>
   );
 }
