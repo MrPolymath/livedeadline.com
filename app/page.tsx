@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Datepicker from "react-tailwindcss-datepicker";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -88,13 +89,48 @@ export default function Home() {
 }
 
 function AlternateUI({ errorMessage }: { errorMessage?: string }) {
+  const [value, setValue] = useState({
+    startDate: new Date(),
+    endDate: null,
+  });
+
+  const handleValueChange = (newValue) => {
+    console.log("newValue:", newValue);
+    setValue(newValue);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 text-slate-800 bg-slate-100">
-      <h1 className="text-4xl font-bold">Missing Parameters</h1>
-      <p className="text-xl mt-4">
+    <main className="flex min-h-screen flex-col items-center justify-center md:p-24 p-8 text-slate-800 bg-slate-100">
+      <h1 className="text-4xl font-bold mb-12 text-center">
+        Create your own shareable url
+      </h1>
+      {/* <p className="text-xl mt-4">
         {errorMessage ??
           "Please provide both `d` and `t` query parameters in the URL."}
-      </p>
+      </p> */}
+      <p className="text-xl mt-4">1. Select a date:</p>
+      <div className="max-w-64 mt-2">
+        <Datepicker
+          asSingle={true}
+          value={value}
+          onChange={handleValueChange}
+        />
+      </div>
+      <p className="text-xl mt-8">2. Select a specific time:</p>
+      <p className="text-md">(optional, if not, defaults to midnight):</p>
+      <input
+        type="time"
+        className="border border-gray-300 rounded-md p-2 mt-2"
+      />
+      <p className="text-xl mt-8">3. Add a description:</p>
+      <input
+        type="text"
+        placeholder="e.g. My birthday"
+        className="border border-gray-300 rounded-md p-2 mt-2"
+      />
+      <button className="bg-blue-500 text-white rounded-md p-2 mt-4">
+        Create and copy URL
+      </button>
     </main>
   );
 }
