@@ -164,8 +164,10 @@ function Form() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 text-slate-800 bg-slate-100">
-      <h1 className="text-4xl font-bold">Create your own shareable URL</h1>
+    <main className="flex min-h-screen flex-col md:items-center md:justify-center md:p-24 p-12 text-slate-800 bg-slate-100">
+      <h1 className="text-2xl md:text-4xl font-bold">
+        Create your own shareable URL
+      </h1>
       <p className="text-xl mt-4">1. Select a date:</p>
       <div className="w-full md:w-96 mt-2">
         <Datepicker
@@ -188,7 +190,7 @@ function Form() {
         type="text"
         value={description}
         onChange={handleDescriptionChange}
-        placeholder="e.g. My birthday"
+        placeholder="e.g. My super important event"
         className="border border-gray-300 rounded-md p-2 mt-2 md:w-96 cursor-copy"
       />
 
