@@ -1,12 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Datepicker, {
   DateRangeType,
   DateValueType,
 } from "react-tailwindcss-datepicker";
 
-export default function Countdown() {
+// Separate your main Countdown logic into a component that will be Suspended
+function CountdownLogic() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [isValidParams, setIsValidParams] = useState(false);
@@ -32,7 +34,7 @@ export default function Countdown() {
     setLoading(false);
   }, [searchParams]);
 
-  const calculatePercentage = () => {
+  const calculatePercentage = useCallback(() => {
     if (!countdownEndTime) return "0000000";
     const now = new Date().getTime();
     const remainingTime = countdownEndTime - now;
@@ -44,7 +46,7 @@ export default function Countdown() {
 
     const percentageRounded = (percentageOfDay * 10000000).toFixed(0);
     return percentageRounded.padStart(7, "0");
-  };
+  }, [countdownEndTime]);
 
   useEffect(() => {
     if (countdownEndTime) {
@@ -65,7 +67,7 @@ export default function Countdown() {
 
       return () => clearInterval(interval);
     }
-  }, [countdownEndTime]);
+  }, [countdownEndTime, calculatePercentage]);
 
   if (loading) {
     return (
@@ -95,6 +97,14 @@ export default function Countdown() {
         <div className="text-3xl mt-5">{countdownText}</div>
       </div>
     </main>
+  );
+}
+
+export default function Countdown() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CountdownLogic />
+    </Suspense>
   );
 }
 
