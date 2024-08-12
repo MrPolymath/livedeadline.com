@@ -1,7 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker, {
+  DateRangeType,
+  DateValueType,
+} from "react-tailwindcss-datepicker";
 
 export default function Countdown() {
   const searchParams = useSearchParams();
@@ -96,21 +99,18 @@ export default function Countdown() {
 }
 
 function Form() {
-  const [dateValue, setDateValue] = useState<{
-    startDate: string | null;
-    endDate: string | null;
-  }>({
+  const [dateValue, setDateValue] = useState<DateRangeType>({
     startDate: null,
     endDate: null,
   });
   const [time, setTime] = useState<string>("00:00");
   const [description, setDescription] = useState<string>("");
 
-  const handleDateChange = (newValue: {
-    startDate: string | null;
-    endDate: string | null;
-  }) => {
-    setDateValue(newValue);
+  const handleDateChange = (newValue: DateValueType) => {
+    if (newValue) {
+      const { startDate, endDate } = newValue;
+      setDateValue({ startDate, endDate });
+    }
   };
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
