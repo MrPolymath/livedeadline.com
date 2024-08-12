@@ -1,22 +1,40 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
-  // Use useState to ensure countdownEndTime and countdownText are set only once
-  const [countdownEndTime] = useState(Date.now() + 10000); // 60 seconds from now
-  const [countdownText] = useState("My test text but in a longer version");
+  const searchParams = useSearchParams();
+
+  const d = searchParams.get("d"); // Get the 'd' query parameter
+  // validate that d is in base36, decode and check that it's a valid date
+  // if not, render an error message
+  const isValidDate = d && !isNaN(parseInt(d, 36));
+  const t = searchParams.get("t"); // Get the 't' query parameter
+
+  // If the query parameters are missing, render a different UI
+  if (!d || !t) {
+    if (!isValidDate) {
+      return <AlternateUI errorMessage="Invalid date string" />;
+    }
+    return <AlternateUI />;
+  }
+
+  // Decode the 'd' parameter from base36
+  const decodedTime = parseInt(d, 36);
+
+  // Use the decoded time and query text as the initial states
+  const [countdownEndTime] = useState(decodedTime);
+  const [countdownText] = useState(decodeURIComponent(t));
 
   const calculatePercentage = () => {
     const now = new Date().getTime();
     const remainingTime = countdownEndTime - now;
     const percentageOfDay = remainingTime / 86400000; // 86,400,000 ms = 1 day
 
-    // If the remaining time is zero or negative (countdown finished)
     if (remainingTime <= 0) {
       return "0000000";
     }
 
-    // Ensure consistent rounding and string length
     const percentageRounded = (percentageOfDay * 10000000).toFixed(0);
     return percentageRounded.padStart(7, "0");
   };
@@ -33,7 +51,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [countdownEndTime]);
 
-  const [daysLeft, setDaysLeft] = useState(null);
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
 
   useEffect(() => {
     const calculateDaysLeft = () => {
@@ -46,7 +64,6 @@ export default function Home() {
     calculateDaysLeft();
   }, [countdownEndTime]);
 
-  // Avoid rendering anything until daysLeft is calculated
   if (daysLeft === null) {
     return null;
   }
@@ -66,6 +83,18 @@ export default function Home() {
         </div>
         <div className="text-3xl mt-5">{countdownText}</div>
       </div>
+    </main>
+  );
+}
+
+function AlternateUI({ errorMessage }: { errorMessage?: string }) {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 text-slate-800 bg-slate-100">
+      <h1 className="text-4xl font-bold">Missing Parameters</h1>
+      <p className="text-xl mt-4">
+        {errorMessage ??
+          "Please provide both `d` and `t` query parameters in the URL."}
+      </p>
     </main>
   );
 }
