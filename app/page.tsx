@@ -38,13 +38,18 @@ function CountdownLogic() {
     if (!countdownEndTime) return "0000000";
     const now = new Date().getTime();
     const remainingTime = countdownEndTime - now;
-    const percentageOfDay = remainingTime / 86400000; // 86,400,000 ms = 1 day
 
     if (remainingTime <= 0) {
       return "0000000";
     }
 
+    // Calculate the time left in the current day (remainder of the 24h period)
+    const remainingTimeInCurrentDay = remainingTime % 86400000; // 86,400,000 ms = 1 day
+
+    // Calculate the percentage of the day that has passed
+    const percentageOfDay = remainingTimeInCurrentDay / 86400000;
     const percentageRounded = (percentageOfDay * 10000000).toFixed(0);
+
     return percentageRounded.padStart(7, "0");
   }, [countdownEndTime]);
 
@@ -116,6 +121,8 @@ function Form() {
   const [time, setTime] = useState<string>("00:00");
   const [description, setDescription] = useState<string>("");
 
+  const [isCopied, setIsCopied] = useState(false); // For toast notification
+
   const handleDateChange = (newValue: DateValueType) => {
     if (newValue) {
       const { startDate, endDate } = newValue;
@@ -160,6 +167,8 @@ function Form() {
   const handleCopyUrl = () => {
     if (urlPreview) {
       navigator.clipboard.writeText(urlPreview);
+      setIsCopied(true); // Show toast notification
+      setTimeout(() => setIsCopied(false), 2000); // Hide after 2 seconds
     }
   };
 
@@ -191,7 +200,7 @@ function Form() {
         value={description}
         onChange={handleDescriptionChange}
         placeholder="e.g. My super important event"
-        className="border border-gray-300 rounded-md p-2 mt-2 md:w-96 cursor-copy"
+        className="border border-gray-300 rounded-md p-2 mt-2 md:w-96"
       />
 
       {urlPreview && (
@@ -208,6 +217,14 @@ function Form() {
           </div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      {isCopied && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 p-4 bg-green-500 text-white rounded-lg shadow-md">
+          Link copied to clipboard!
+        </div>
+      )}
+
       <div className="fixed bottom-0 left-0 right-0 p-4 text-center text-gray-500">
         Created by{" "}
         <a
