@@ -61,7 +61,7 @@ export default function LivePreview({
 
   return (
     <div
-      className="flex min-h-[50%] flex-col items-center justify-center p-6 relative"
+      className="flex md:min-h-[50%] flex-col items-center justify-center p-6 relative min-h-[300px]"
       style={{ backgroundColor }}
     >
       <div className="absolute top-4 left-4 text-sm">Custom preview</div>
