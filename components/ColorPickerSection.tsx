@@ -5,7 +5,7 @@ const COLOR_PRESETS = [
     backgroundColor: "#F6F6EF",
     daysColor: "#f0652f",
     decimalsColor: "#fda942",
-    daysTextColor: "#000",
+    daysTextColor: "#000000",
     deadlineTextColor: "#108AD2",
   },
   {

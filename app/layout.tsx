@@ -35,7 +35,6 @@ export default function RootLayout({
         sizes="16x16"
         href="/favicon-16x16.png"
       ></link>
-      <link rel="manifest" href="/site.webmanifest"></link>
       <body className={inter.className}>{children}</body>
     </html>
   );
