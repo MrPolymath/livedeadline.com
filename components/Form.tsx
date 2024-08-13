@@ -88,7 +88,7 @@ export default function Form() {
 
   return (
     <main className="min-h-screen flex flex-col md:flex-row relative">
-      <div className="md:min-h-screen flex flex-col md:items-center md:justify-center md:p-24 p-12 text-slate-800 bg-slate-100 md:w-2/3">
+      <div className="md:min-h-screen flex flex-col md:items-center md:justify-center md:p-24 p-12 text-slate-800 bg-slate-100 md:w-1/2 xl:w-2/3">
         <h1 className="text-2xl md:text-4xl font-bold">
           Create your own live deadline link
         </h1>
@@ -131,7 +131,7 @@ export default function Form() {
         )}
       </div>
 
-      <div className="md:fixed md:h-full md:right-0 md:top-0 md:w-1/3 bg-white md:shadow-lg flex flex-col">
+      <div className="md:fixed md:h-full md:right-0 md:top-0 md:w-1/2 xl:w-1/3 bg-white md:shadow-lg flex flex-col">
         <ColorPickerSection
           backgroundColor={backgroundColor}
           setBackgroundColor={setBackgroundColor}
