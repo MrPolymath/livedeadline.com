@@ -164,18 +164,10 @@ function Form() {
 
   const urlPreview = generateUrl();
 
-  const handleCopyUrl = () => {
-    if (urlPreview) {
-      navigator.clipboard.writeText(urlPreview);
-      setIsCopied(true); // Show toast notification
-      setTimeout(() => setIsCopied(false), 2000); // Hide after 2 seconds
-    }
-  };
-
   return (
     <main className="flex min-h-screen flex-col md:items-center md:justify-center md:p-24 p-12 text-slate-800 bg-slate-100">
       <h1 className="text-2xl md:text-4xl font-bold">
-        Create your own shareable URL
+        Create your own live deadline link
       </h1>
       <p className="text-xl mt-4">1. Select a date:</p>
       <div className="w-full md:w-96 mt-2">
@@ -187,7 +179,7 @@ function Form() {
         />
       </div>
       <p className="text-xl mt-4">2. Select a specific time:</p>
-      <p className="text-md">(optional, defaults to midnight if not set):</p>
+      <p className="text-sm">(optional, defaults to midnight if not set):</p>
       <input
         type="time"
         value={time}
@@ -203,18 +195,16 @@ function Form() {
         className="border border-gray-300 rounded-md p-2 mt-2 md:w-96"
       />
 
-      {urlPreview && (
-        <div className="mt-8">
-          <p className="text-m">Click to copy:</p>
-          <div className="flex items-center mt-2">
-            <input
-              onClick={handleCopyUrl}
-              type="text"
-              value={urlPreview}
-              readOnly
-              className="border border-gray-300 rounded-md p-2 w-full md:w-96 cursor-copy"
-            />
-          </div>
+      {urlPreview && description.length > 0 && (
+        <div className="mt-8 w-full md:w-96">
+          {/* Button link with "Preview" as text that when clicked, navigates to the url in a new tab */}
+          <a
+            className="block text-center bg-blue-500 text-white rounded-md p-2 cursor-pointer"
+            href={urlPreview}
+            target="_blank"
+          >
+            Preview
+          </a>
         </div>
       )}
 
