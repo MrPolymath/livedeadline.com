@@ -7,6 +7,7 @@ import Datepicker, {
 } from "react-tailwindcss-datepicker";
 import LivePreview from "./LivePreview";
 import ColorPickerSection from "./ColorPickerSection";
+import Link from "next/link";
 
 export default function Form() {
   const [dateValue, setDateValue] = useState<DateRangeType>({
@@ -86,7 +87,7 @@ export default function Form() {
   const urlPreview = generateUrl();
 
   return (
-    <main className="min-h-screen flex flex-col md:flex-row">
+    <main className="min-h-screen flex flex-col md:flex-row relative">
       <div className="md:min-h-screen flex flex-col md:items-center md:justify-center md:p-24 p-12 text-slate-800 bg-slate-100 md:w-2/3">
         <h1 className="text-2xl md:text-4xl font-bold">
           Create your own live deadline link
@@ -152,15 +153,16 @@ export default function Form() {
           deadlineTextColor={deadlineTextColor}
         />
       </div>
-
-      <div className="fixed bottom-0 left-0 p-4 pl-6 text-gray-500">
-        Created by{" "}
+      <div className="absolute top-0 left-0 p-4 pl-6 text-gray-500">
+        <Link href="/howto">How to use</Link>
+      </div>
+      <div className="fixed bottom-0 left-0 p-2 text-gray-500 bg-white flex justify-center items-center rounded-tr-lg text-sm">
         <a
           href="https://www.linkedin.com/in/danielcarmonaserrat/"
-          className="underline"
+          className=""
           target="_blank"
         >
-          Daniel Carmona Serrat
+          Created by <span className="underline">Daniel Carmona Serrat</span>
         </a>
       </div>
     </main>
