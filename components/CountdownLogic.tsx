@@ -24,7 +24,7 @@ export default function CountdownLogic() {
   useEffect(() => {
     const d = searchParams.get("d");
     const t = searchParams.get("t");
-    const sheet = searchParams.get("sheet"); // Check for the 'sheet' query parameter
+    const sheet = searchParams.get("sheet");
     console.log(sheet);
     const bg = searchParams.get("bg");
     const dc = searchParams.get("dc");
@@ -51,9 +51,8 @@ export default function CountdownLogic() {
 
     if (sheet) {
       const decodedSheetUrl = decodeURIComponent(sheet);
-      // Append parameters to hide UI elements and show only cells
       const modifiedSheetUrl = `${decodedSheetUrl}&rm=minimal`;
-      setSheetUrl(modifiedSheetUrl); // Set modified URL
+      setSheetUrl(modifiedSheetUrl);
     }
 
     setLoading(false);
@@ -110,10 +109,16 @@ export default function CountdownLogic() {
     return <Form />;
   }
 
+  // Define font sizes conditionally
+  const daysFontSize = sheetUrl ? "12rem" : "6rem"; // Adjust to your needs
+  const percentageFontSize = sheetUrl ? "4rem" : "1.5rem";
+  const daysTextFontSize = sheetUrl ? "4rem" : "1.5rem";
+  const countdownTextFontSize = sheetUrl ? "4rem" : "1.5rem";
+
   return (
     <main
       className={`flex min-h-screen ${
-        sheetUrl ? "flex-row p-0" : "flex-col p-24"
+        sheetUrl ? "flex-row p-0" : "flex-col p-24 justify-center"
       }`}
       style={{ backgroundColor }}
     >
@@ -132,23 +137,32 @@ export default function CountdownLogic() {
         }`}
       >
         <div className="flex items-center justify-center">
-          <div className="font-bold text-8xl" style={{ color: daysColor }}>
+          <div
+            className="font-bold"
+            style={{ color: daysColor, fontSize: daysFontSize }}
+          >
             {daysLeft}
           </div>
           <div className="flex flex-col">
             <div
-              className="text-3xl font-semibold font-mono"
-              style={{ color: decimalsColor }}
+              className="font-semibold font-mono"
+              style={{ color: decimalsColor, fontSize: percentageFontSize }}
             >
               <span>.</span>
               <span>{percentageString}</span>
             </div>
-            <div className="text-3xl pl-4" style={{ color: daysTextColor }}>
+            <div
+              className="pl-4"
+              style={{ color: daysTextColor, fontSize: daysTextFontSize }}
+            >
               days
             </div>
           </div>
         </div>
-        <div className="text-3xl mt-5" style={{ color: deadlineTextColor }}>
+        <div
+          style={{ color: deadlineTextColor, fontSize: countdownTextFontSize }}
+          className=""
+        >
           {countdownText}
         </div>
       </div>
