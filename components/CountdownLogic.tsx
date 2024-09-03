@@ -19,10 +19,13 @@ export default function CountdownLogic() {
   const [daysTextColor, setDaysTextColor] = useState<string>("#475569");
   const [deadlineTextColor, setDeadlineTextColor] = useState<string>("#1E293B");
 
+  const [sheetUrl, setSheetUrl] = useState<string | null>(null);
+
   useEffect(() => {
     const d = searchParams.get("d");
     const t = searchParams.get("t");
-
+    const sheet = searchParams.get("sheet"); // Check for the 'sheet' query parameter
+    console.log(sheet);
     const bg = searchParams.get("bg");
     const dc = searchParams.get("dc");
     const dd = searchParams.get("dd");
@@ -45,6 +48,13 @@ export default function CountdownLogic() {
     if (dd) setDecimalsColor(`#${dd}`);
     if (dt) setDaysTextColor(`#${dt}`);
     if (dl) setDeadlineTextColor(`#${dl}`);
+
+    if (sheet) {
+      const decodedSheetUrl = decodeURIComponent(sheet);
+      // Append parameters to hide UI elements and show only cells
+      const modifiedSheetUrl = `${decodedSheetUrl}&rm=minimal`;
+      setSheetUrl(modifiedSheetUrl); // Set modified URL
+    }
 
     setLoading(false);
   }, [searchParams]);
@@ -102,10 +112,25 @@ export default function CountdownLogic() {
 
   return (
     <main
-      className="flex min-h-screen flex-col items-center justify-center p-24"
+      className={`flex min-h-screen ${
+        sheetUrl ? "flex-row p-0" : "flex-col p-24"
+      }`}
       style={{ backgroundColor }}
     >
-      <div>
+      {sheetUrl && (
+        <div className="w-1/2 h-screen">
+          <iframe
+            src={sheetUrl}
+            className="w-full h-full"
+            frameBorder="0"
+          ></iframe>
+        </div>
+      )}
+      <div
+        className={`flex flex-col items-center justify-center ${
+          sheetUrl ? "w-1/2" : "w-full"
+        }`}
+      >
         <div className="flex items-center justify-center">
           <div className="font-bold text-8xl" style={{ color: daysColor }}>
             {daysLeft}
