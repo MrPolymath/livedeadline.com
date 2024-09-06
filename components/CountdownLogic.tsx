@@ -25,7 +25,6 @@ export default function CountdownLogic() {
     const d = searchParams.get("d");
     const t = searchParams.get("t");
     const sheet = searchParams.get("sheet");
-    console.log(sheet);
     const bg = searchParams.get("bg");
     const dc = searchParams.get("dc");
     const dd = searchParams.get("dd");
@@ -68,33 +67,43 @@ export default function CountdownLogic() {
     }
 
     const remainingTimeInCurrentDay = remainingTime % 86400000;
-
     const percentageOfDay = remainingTimeInCurrentDay / 86400000;
     const percentageRounded = (percentageOfDay * 10000000).toFixed(0);
 
     return percentageRounded.padStart(7, "0");
   }, [countdownEndTime]);
 
+  const calculateDaysLeft = useCallback(() => {
+    if (!countdownEndTime) return 0;
+
+    const daysLeftCalculated = Math.floor(
+      (countdownEndTime - Date.now()) / 1000 / 60 / 60 / 24
+    );
+
+    return daysLeftCalculated;
+  }, [countdownEndTime]);
+
   useEffect(() => {
     if (countdownEndTime) {
-      setPercentageString(calculatePercentage());
-
-      const interval = setInterval(() => {
+      // Update percentage every 100ms
+      const percentageInterval = setInterval(() => {
         setPercentageString(calculatePercentage());
       }, 100);
 
-      const calculateDaysLeft = () => {
-        const daysLeftCalculated = Math.floor(
-          (countdownEndTime - Date.now()) / 1000 / 60 / 60 / 24
-        );
-        setDaysLeft(daysLeftCalculated);
+      // Update daysLeft every 5 minutes (300000ms)
+      const daysInterval = setInterval(() => {
+        setDaysLeft(calculateDaysLeft());
+      }, 300000);
+
+      // Initial calculation for daysLeft
+      setDaysLeft(calculateDaysLeft());
+
+      return () => {
+        clearInterval(percentageInterval);
+        clearInterval(daysInterval);
       };
-
-      calculateDaysLeft();
-
-      return () => clearInterval(interval);
     }
-  }, [countdownEndTime, calculatePercentage]);
+  }, [countdownEndTime, calculatePercentage, calculateDaysLeft]);
 
   if (loading) {
     return (
